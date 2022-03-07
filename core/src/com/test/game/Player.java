@@ -30,6 +30,7 @@ public class Player {
 
     private long timerStart;
 
+    public int maxHp;
     public int health;
     public int stamina;
     public int magic;
@@ -43,6 +44,7 @@ public class Player {
                   int hp, int stam, int mag, double absor, int stag) {
 
         health = hp;
+        maxHp = hp;
         stamina = stam;
         magic = mag;
         absorption = absor;
@@ -123,28 +125,28 @@ public class Player {
            batch.draw(playerImage, player.x, player.y);
         }
 
-        if(isAttacking) {
+        if(isAttacking && isAlive) {
             batch.draw(attackImage, player.x, player.y + player.height);
         }
 
-        if(isWindup) {
+        if(isWindup && isAlive) {
             batch.draw(windupImage, player.x + (player.width / 2), player.y + (player.height / 2));
         }
         batch.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(10, windowHeight - 20, health, 15);
-        shapeRenderer.rect(10, windowHeight - 35, magic * 2, 15);
-        shapeRenderer.rect(10, windowHeight - 50, stamina * 4, 15);
-        shapeRenderer.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(10, windowHeight - 20, health, 15);
+        shapeRenderer.rect(12, windowHeight - 19, health - 2, 12);
         shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.rect(10, windowHeight - 35, magic * 2, 15);
+        shapeRenderer.rect(12, windowHeight - 39, magic * 2 - 2, 12);
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(10, windowHeight - 50, stamina * 4, 15);
+        shapeRenderer.rect(12, windowHeight - 59, stamina * 4 - 2, 12);
+        shapeRenderer.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(10, windowHeight - 20, maxHp, 15);
+        shapeRenderer.rect(10, windowHeight - 40, magic * 2, 15);
+        shapeRenderer.rect(10, windowHeight - 60, stamina * 4, 15);
         shapeRenderer.end();
     }
 
@@ -225,8 +227,21 @@ public class Player {
     public int[] takeDamage(int healthDamage, int postureDamage) {
         health -= healthDamage * absorption;
         staggerHealth -= postureDamage;
+        if(health < 0 || !isAlive) {
+            health = 0;
+        }
         return new int[] {health, staggerHealth};
     }
 
-    
+    public void revive() {
+        health = maxHp;
+    }
+
+    public void aliveCheck() {
+        if(health <= 0) {
+            isAlive = false;
+        } else {
+            isAlive = true;
+        }
+    }
 }

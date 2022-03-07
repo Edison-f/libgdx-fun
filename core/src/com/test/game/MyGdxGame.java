@@ -45,6 +45,8 @@ public class MyGdxGame extends ApplicationAdapter {
 				200, 0.3, 80);
 
 		font = new BitmapFont();
+
+		Gdx.gl.glLineWidth(4);
 	}
 
 	/**
@@ -88,7 +90,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(samurai.getStates()[1] && samurai.timeFromStart() > 500) {
 			samurai.stopAttack();
 		}
-
+		samurai.aliveCheck();
 	}
 
 
@@ -97,8 +99,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		// center: x + half of width, y + half of height
 
 		//follow
-		int dist = 
-		cruKnight.changePos(dist*walkspeedmultiplier, 0);
+		// int dist = 
+		// cruKnight.changePos(dist*walkspeedmultiplier, 0);
 		
 		double enemyX = cruKnight.getEnemyHitbox().getX() + (cruKnight.getEnemyHitbox().getWidth()/2);
 		double enemyY = cruKnight.getEnemyHitbox().getY() + (cruKnight.getEnemyHitbox().getHeight()/2);
@@ -108,21 +110,26 @@ public class MyGdxGame extends ApplicationAdapter {
 	 * Processes keyboard inputs to change the state of the player character
 	 */
 	public void processInput() {
-		if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-			samurai.changePos((int) (-250 * Gdx.graphics.getDeltaTime()), 0);
+		if(samurai.isAlive) {
+			if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+				samurai.changePos((int) (-250 * Gdx.graphics.getDeltaTime()), 0);
+			}
+			if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+				samurai.changePos((int) (250 * Gdx.graphics.getDeltaTime()), 0);
+			}
+			if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+				samurai.changePos(0, (int) (250 * Gdx.graphics.getDeltaTime()));
+			}
+			if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+				samurai.changePos(0, (int) (-250 * Gdx.graphics.getDeltaTime()));
+			}
+			if(Gdx.input.isKeyPressed(Input.Keys.R)) {
+				samurai.windup();
+				samurai.takeDamage(100, 0);
+			}
 		}
-		if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-			samurai.changePos((int) (250 * Gdx.graphics.getDeltaTime()), 0);
-		}
-		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-			samurai.changePos(0, (int) (250 * Gdx.graphics.getDeltaTime()));
-		}
-		if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-			samurai.changePos(0, (int) (-250 * Gdx.graphics.getDeltaTime()));
-		}
-		if(Gdx.input.isKeyPressed(Input.Keys.R)) {
-			samurai.windup();
-			samurai.takeDamage(100, 0);
+		if(Gdx.input.isKeyPressed(Input.Keys.P)) {
+			samurai.revive();;
 		}
 		samurai.checkBounds();
 	}

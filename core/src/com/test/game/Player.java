@@ -134,6 +134,13 @@ public class Player {
         }
         batch.end();
 
+        healthBar();
+    }
+
+    /**
+     * Draws the health bar
+     */
+    public void healthBar() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(12, windowHeight - 19, health - 2, 12);

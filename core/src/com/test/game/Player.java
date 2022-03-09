@@ -2,6 +2,7 @@ package com.test.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -14,8 +15,11 @@ public class Player {
     private ShapeRenderer shapeRenderer;
 
     private Texture playerImage;
+    private Sprite playerSprite;
     private Texture attackImage;
+    private Sprite attackSprite;
     private Texture windupImage;
+    private Sprite windupSprite;
 
     private Rectangle player;
     private Rectangle attack;
@@ -29,14 +33,19 @@ public class Player {
     private int windowHeight;
 
     private long timerStart;
+    private long iFrameTimer;
 
     public int maxHp;
     public int health;
-    public int stamina;
+    public int maxStamina;
+    public double stamina;
+    public int maxMagic;
     public int magic;
     public double absorption;
     public int staggerHealth = 0;
     public int staggerMax;
+
+    public double movementModifier = 1.0;
 
     public Player(String playerImageName, int playerX, int playerY,
                   int playerW, int playerH, String attackImageName,
@@ -46,6 +55,8 @@ public class Player {
         health = hp;
         maxHp = hp;
         stamina = stam;
+        maxStamina = stam;
+        maxMagic = mag;
         magic = mag;
         absorption = absor;
         staggerMax = stag;
@@ -62,6 +73,7 @@ public class Player {
         player.height = playerH;
 
         playerImage = new Texture(playerImageName);
+        playerSprite = new Sprite(playerImage);
 
         attack = new Rectangle();
 
@@ -71,6 +83,7 @@ public class Player {
         attack.width = attackW;
 
         attackImage = new Texture(attackImageName);
+        attackSprite = new Sprite(attackImage);
 
         windup = new Rectangle();
 
@@ -80,6 +93,7 @@ public class Player {
         windup.width = 159;
 
         windupImage = new Texture("attack.png");
+        windupSprite = new Sprite(windupImage);
 
         windowWidth = windowW;
         windowHeight = windowH;
@@ -92,9 +106,9 @@ public class Player {
      *
      * Changes the position of the player based on X and Y coordinates given
      */
-    public void changePos(int changeX, int changeY) {
-        player.x += changeX;
-        player.y += changeY;
+    public void move(int changeX, int changeY) {
+        player.x += changeX * movementModifier;
+        player.y += changeY * movementModifier;
 
     }
 
@@ -120,40 +134,45 @@ public class Player {
      * Draws the player, attack, and windup images if necessary
      */
     public void draw() {
+        attack.x = player.x;
+        attack.y = player.y + player.height;
+        
         batch.begin();
         if(isAlive) {
-           batch.draw(playerImage, player.x, player.y);
+           batch.draw(playerSprite, player.x, player.y);
         }
 
         if(isAttacking && isAlive) {
-            batch.draw(attackImage, player.x, player.y + player.height);
+            batch.draw(attackSprite, attack.x, attack.y);
         }
 
         if(isWindup && isAlive) {
-            batch.draw(windupImage, player.x + (player.width / 2), player.y + (player.height / 2));
+            batch.draw(windupSprite, player.x + (player.width / 2), player.y + (player.height / 2));
         }
         batch.end();
 
-        healthBar();
+        statusBar();
+
     }
 
     /**
      * Draws the health bar
      */
-    public void healthBar() {
+    public void statusBar() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(12, windowHeight - 19, health - 2, 12);
         shapeRenderer.setColor(Color.BLUE);
         shapeRenderer.rect(12, windowHeight - 39, magic * 2 - 2, 12);
         shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(12, windowHeight - 59, stamina * 4 - 2, 12);
+        shapeRenderer.rect(12, windowHeight - 59, (int) stamina * 4 - 2, 12);
         shapeRenderer.end();
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.BLACK);
         shapeRenderer.rect(10, windowHeight - 20, maxHp, 15);
-        shapeRenderer.rect(10, windowHeight - 40, magic * 2, 15);
-        shapeRenderer.rect(10, windowHeight - 60, stamina * 4, 15);
+        shapeRenderer.rect(10, windowHeight - 40, maxMagic * 2, 15);
+        shapeRenderer.rect(10, windowHeight - 60, maxStamina * 4, 15);
         shapeRenderer.end();
     }
 
@@ -175,6 +194,7 @@ public class Player {
         if(!isAttacking && !isWindup && isAlive) {
             timerStart = System.currentTimeMillis();
             isWindup = true;
+            movementModifier = 0.5;
         }
     }
 
@@ -184,6 +204,7 @@ public class Player {
     public void attack() {
         isWindup = false;
         isAttacking = true;
+        movementModifier = 0.25;
     }
 
     /**
@@ -191,6 +212,26 @@ public class Player {
      */
     public void stopAttack() {
         isAttacking = false;
+        movementModifier = 1.0;
+    }
+
+    /**
+     * Increases the player's movement speed and reduces their stamina
+     */
+    public void sprint() {
+        movementModifier = 1.5;
+        if(stamina > 0) {
+            stamina -= 60 * Gdx.graphics.getDeltaTime();
+        }
+    }
+
+    /**
+     * Regenerates stamina
+     */
+    public void regenStamina() {
+        if(stamina < maxStamina) {
+            stamina += 40 * Gdx.graphics.getDeltaTime();
+        }
     }
 
     /**
@@ -250,5 +291,9 @@ public class Player {
         } else {
             isAlive = true;
         }
+    }
+
+    public void iFrame() {
+        
     }
 }

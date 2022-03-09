@@ -4,7 +4,6 @@ package com.test.game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.IntArray;
 
 public class Enemy {
 
@@ -21,11 +20,15 @@ public class Enemy {
     private boolean isAttacking = false;
     private boolean isWindup = false;
     private boolean isAlive = true;
+    private boolean isTakingDamage = false;
+
+    private boolean isIframe = false;
 
     private int windowWidth;
     private int windowHeight;
 
     private long timerStart;
+    private long damageTimerStart;
 
     public int health;
     public int stamina;
@@ -124,6 +127,7 @@ public class Enemy {
     public void dispose() {
         batch.dispose();
         enemyImage.dispose();
+
         attackImage.dispose();
         windupImage.dispose();
     }
@@ -134,8 +138,7 @@ public class Enemy {
      * @return A rectangle with the XY coordinates and the width and height of the enemy
      */
     public Rectangle getEnemyHitbox() {
-        return new Rectangle ((int) enemy.x, (int) enemy.y,
-                (int) enemy.width, (int) enemy.height);
+        return enemy;
     }
 
     /**
@@ -149,9 +152,29 @@ public class Enemy {
     }
 
     public int[] takeDamage(int healthDamage, int postureDamage) {
-        health -= healthDamage * absorption;
-        staggerHealth -= postureDamage;
+        if(!isIframe) {
+            health -= healthDamage * absorption;
+            staggerHealth -= postureDamage;
+            isTakingDamage = true;
+            damageTimerStart = System.currentTimeMillis();
+        }
         return new int[] {health, staggerHealth};
     }
 
+    public int getHealth() {
+        return health;
+    }
+
+    public int timeFromDamage() {
+        return (int) (System.currentTimeMillis() - damageTimerStart);
+    }
+
+    public boolean[] getStates() {
+        return new boolean[] {isAttacking, isWindup, isAlive, isTakingDamage};
+    }
+
+    public void iFrame() {
+        damageTimerStart = System.currentTimeMillis();
+    }
+    
 }

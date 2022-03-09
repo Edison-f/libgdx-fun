@@ -34,7 +34,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		samurai = new Player("samurai.png",
 				(1280 / 2 - 152 / 2), 40, 152,
-				191, "sword.png", 300,
+				191, "better_sword.png", 300,
 				82, windowWidth, windowHeight, 600, 100,
 				100, 0.2, 20);
 
@@ -65,6 +65,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		font.draw(batch, String.valueOf(Gdx.graphics.getDeltaTime()), 40, 40);
 //		font.draw(batch, String.valueOf(samurai.getWindupTimer()), 40, 80);
 //		font.draw(batch, String.valueOf(samurai.getAttackTimer()), 40, 120);
+		font.draw(batch, String.valueOf(cruKnight.getHealth()), 40, 140);	
 		font.draw(batch, String.valueOf(System.currentTimeMillis()), 40, 160);
 		batch.end();
 		processInput();
@@ -90,7 +91,11 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(samurai.getStates()[1] && samurai.timeFromStart() > 500) {
 			samurai.stopAttack();
 		}
+		if(cruKnight.getStates()[3] && samurai.timeFromStart() < 125) {
+			cruKnight.iFrame();
+		}
 		samurai.aliveCheck();
+		samurai.regenStamina();
 	}
 
 
@@ -112,20 +117,24 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void processInput() {
 		if(samurai.isAlive) {
 			if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-				samurai.changePos((int) (-250 * Gdx.graphics.getDeltaTime()), 0);
+				samurai.move((int) (-250 * Gdx.graphics.getDeltaTime()), 0);
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-				samurai.changePos((int) (250 * Gdx.graphics.getDeltaTime()), 0);
+				samurai.move((int) (250 * Gdx.graphics.getDeltaTime()), 0);
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-				samurai.changePos(0, (int) (250 * Gdx.graphics.getDeltaTime()));
+				samurai.move(0, (int) (250 * Gdx.graphics.getDeltaTime()));
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-				samurai.changePos(0, (int) (-250 * Gdx.graphics.getDeltaTime()));
+				samurai.move(0, (int) (-250 * Gdx.graphics.getDeltaTime()));
+			}
+			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+				samurai.sprint();
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.R)) {
 				samurai.windup();
-				samurai.takeDamage(100, 0);
+				hitDetection(samurai, cruKnight);
+				// samurai.takeDamage(100, 0);
 			}
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.P)) {
@@ -139,9 +148,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	 */
 	public void hitDetection(Player player, Enemy enemy) {
 		if (player.getAttackHitbox().overlaps(enemy.getEnemyHitbox())){
-			enemy.takeDamage(1,1);
-		} else if (enemy.getAttackHitbox().overlaps(player.getHitbox())){
-			player.takeDamage(1, 1);
+			enemy.takeDamage(100,0);
+		}
+		if (enemy.getAttackHitbox().overlaps(player.getHitbox())){
+			player.takeDamage(100, 0);
 		}
 	}
 

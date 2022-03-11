@@ -66,7 +66,7 @@ public class MyGdxGame extends ApplicationAdapter {
 //		font.draw(batch, String.valueOf(samurai.getWindupTimer()), 40, 80);
 //		font.draw(batch, String.valueOf(samurai.getAttackTimer()), 40, 120);
 		font.draw(batch, String.valueOf(cruKnight.getHealth()), 40, 140);	
-		font.draw(batch, String.valueOf(System.currentTimeMillis()), 40, 160);
+		font.draw(batch, String.valueOf(cruKnight.timeFromDamage()), 40, 160);
 		batch.end();
 		processInput();
 	}
@@ -91,9 +91,12 @@ public class MyGdxGame extends ApplicationAdapter {
 		if(samurai.getStates()[1] && samurai.timeFromStart() > 500) {
 			samurai.stopAttack();
 		}
-		if(cruKnight.getStates()[3] && samurai.timeFromStart() < 125) {
-			cruKnight.iFrame();
+		if(samurai.getStates()[1]) {
+			hitDetection(samurai, cruKnight);
 		}
+		if(cruKnight.getStates()[3] && samurai.timeFromStart() > 500) {
+			cruKnight.endIframe();
+		} 
 		samurai.aliveCheck();
 		samurai.regenStamina();
 	}
@@ -133,12 +136,12 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 			if(Gdx.input.isKeyPressed(Input.Keys.R)) {
 				samurai.windup();
-				hitDetection(samurai, cruKnight);
 				// samurai.takeDamage(100, 0);
 			}
 		}
 		if(Gdx.input.isKeyPressed(Input.Keys.P)) {
-			samurai.revive();;
+			samurai.revive();
+			cruKnight.revive();
 		}
 		samurai.checkBounds();
 	}

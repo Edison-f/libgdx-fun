@@ -152,11 +152,12 @@ public class Enemy {
     }
 
     public int[] takeDamage(int healthDamage, int postureDamage) {
-        if(!isIframe) {
+        if(!isTakingDamage) {
+            iFrame();
             health -= healthDamage * absorption;
             staggerHealth -= postureDamage;
-            isTakingDamage = true;
-            damageTimerStart = System.currentTimeMillis();
+            // isTakingDamage = true;
+            // damageTimerStart = System.currentTimeMillis();
         }
         return new int[] {health, staggerHealth};
     }
@@ -169,12 +170,26 @@ public class Enemy {
         return (int) (System.currentTimeMillis() - damageTimerStart);
     }
 
+    /**
+     * Gets the states of the Enemy
+     * @return {isAttacking, isWindup, isTakingDamage, isAlive} 
+     */
     public boolean[] getStates() {
         return new boolean[] {isAttacking, isWindup, isAlive, isTakingDamage};
     }
 
     public void iFrame() {
         damageTimerStart = System.currentTimeMillis();
+        isTakingDamage = true;
+    }
+
+    public void endIframe() {
+        isTakingDamage = false;
+    }
+
+    public void revive() {
+        isAlive = true;
+        health = 1200;
     }
     
 }
